@@ -106,7 +106,7 @@ petrol_expenditures_oil_price<-petroleum_data %>%
   geom_line(aes(y=adj_oil_price*petrol_scaling_factor, color="Crude Oil Price,\nAdjusted for Inflation"), size=1) +
   scale_y_continuous(
     name = "Percent of GDP spent on Petroleum",
-    labels = percent_format(scale = 1),  # Format primary axis labels as percentages
+    labels = percent_format(scale = 1),
     breaks = seq(0, 8, by = 1),
     sec.axis = sec_axis(~./petrol_scaling_factor , name = "USD per Barrel, in 2022 Dollars",breaks = seq(0,140,by=20))
   ) +
@@ -127,17 +127,17 @@ petrol_expenditures_oil_price<-petroleum_data %>%
     color = guide_legend(title = "",position="bottom")
   )+
   theme(
-    text = element_text(size = 14),  # General text size
-    plot.title = element_text(size = 20, face = "bold",hjust = .5,color = "white"),  # Title text size
+    text = element_text(size = 14),
+    plot.title = element_text(size = 20, face = "bold",hjust = .5,color = "white"),
     plot.subtitle = element_text(size = 16,hjust=.5,color = "white",family="raleway"),
     axis.line = element_line(color = "#003554",size=1.5),
-    axis.title = element_text(size = 14,color = "white",family="raleway"),  # Axis titles size
-    axis.text = element_text(size = 14,color = "white",family="raleway"),  # Axis labels size
+    axis.title = element_text(size = 14,color = "white",family="raleway"),
+    axis.text = element_text(size = 14,color = "white",family="raleway"),
     legend.text = element_text(size = 12,color = "white",family="raleway",lineheight=.75),
-    panel.background = element_rect(fill = "black"),  # Panel background color
-    plot.background = element_rect(fill = "black"),  # Plot background color
-    legend.background = element_rect(fill = "black"),  # Legend background color
-    panel.grid.major = element_line(color="lightgrey"),  # Major gridlines color
+    panel.background = element_rect(fill = "black"),
+    plot.background = element_rect(fill = "black"), 
+    legend.background = element_rect(fill = "black"), 
+    panel.grid.major = element_line(color="lightgrey"),
     panel.grid.minor = element_blank(),
     panel.grid.major.x = element_blank(),
     axis.ticks = element_line(size = 1,color="white")
