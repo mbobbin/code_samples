@@ -1,0 +1,131 @@
+---
+title: "Figure 54"
+author: "Mitch Bobbin"
+date: "2025-05-08"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(extrafont)  # For font management
+library(showtext)
+library(sjPlot)
+
+font_add("Calibri", regular = "calibri.ttf", bold = "calibrib.ttf")
+showtext_auto()
+library(sjPlot)
+library(svglite
+
+retail_price<-read.csv("C:/Users/Mitch/Documents/SAFE/Final Figures/Figure 54 - Retail fuel prices/Retail prices.csv")
+
+library(tidyverse)
+
+retail_price<-retail_price %>% 
+  select(Report.Date,Gasoline,CNG,LNG,Propane.,Diesel)
+
+retail_price_long <- retail_price %>%
+  pivot_longer(
+    cols = -`Report.Date`,           # All columns except 'Report Date'
+    names_to = "fuel",               # New column for fuel types
+    values_to = "price"              # New column for price values
+  )
+
+retail_price_long <- retail_price_long %>%
+  mutate(Report.Date = as.Date(Report.Date, format = "%m/%d/%y"))
+
+
+retail_price_long <- retail_price_long %>%
+  mutate(
+    price = readr::parse_number(price)  # Removes $, commas, and converts to numeric
+  )
+
+
+res_electricity_price<-read.csv("C:/Users/Mitch/Documents/SAFE/Final Figures/Figure 54 - Retail fuel prices/Average_retail_price_of_electricity.csv")
+library(tidyverse)
+
+#prices from https://www.eia.gov/electricity/data/browser/#/topic/7?geo=g&agg=0,1&endsec=vg
+res_electricity_price_long <- res_electricity_price %>%
+  select(matches("Q[1-4]")) %>%       # Select only columns with Q1–Q4
+  pivot_longer(
+    cols = everything(),
+    names_to = "quarter",
+    values_to = "price"
+  ) %>%
+  mutate(fuel = "Electricity")        # Add fuel column
+
+# Convert quarter to date, rename column, and reorder columns
+res_electricity_price_long <- res_electricity_price_long %>%
+  mutate(
+    Report.Date = case_when(
+      str_detect(quarter, "Q1") ~ paste0(str_extract(quarter, "\\d{4}"), "-01-01"),
+      str_detect(quarter, "Q2") ~ paste0(str_extract(quarter, "\\d{4}"), "-04-01"),
+      str_detect(quarter, "Q3") ~ paste0(str_extract(quarter, "\\d{4}"), "-07-01"),
+      str_detect(quarter, "Q4") ~ paste0(str_extract(quarter, "\\d{4}"), "-10-01")
+    ),
+    Report.Date = as.Date(Report.Date),
+    price = price/100 # convert to same format as other fuel prices. 18.4 cents becomes $.184
+  ) %>%
+  select(Report.Date, fuel, price)
+
+#now convert price using both gge and electric motor factors:
+
+res_electricity_price_long <- res_electricity_price_long %>% 
+  mutate(price=(price*33.7)/3.6) #use 33.7 kwh for a gallon of gas, and divide by 3.6 which
+#is an efficiency advantage that electric motors have over gasoline ones
+
+# Bind to the previous long-format retail price data
+combined_prices <- bind_rows(retail_price_long, res_electricity_price_long)
+
+#plot it now.
+library(ggplot2)
+library(ggthemes)
+library(showtext)
+
+
+combined_prices_plot<-combined_prices %>% 
+  ggplot(aes(x=Report.Date,y=price,color=fuel))+
+  geom_line()+
+  labs(title=toupper("**Figure 54**: Average Retail Fuel Prices,<br>2000-Present"),
+       x="DATE",
+       y="PRICE ($)",
+       color = "FUEL",
+       caption="Source: AFDC & EIA.<br>Electrification Coalition calculations for electricity prices recovered with average residential electricity prices using a<br>Gasoline Gallon Equivalent factor of 33.7 kWh per gallon, divided by the efficiency factor of an electric motor over a combustion engine of 3.6.")+
+  scale_color_manual(
+    values = c(
+      "Electricity" = "#009BC9",           # EC blue
+      "Gasoline" = "#EF5A22",              # EC orange
+      "CNG" = scales::alpha("#003554", 0.5),  # EC orange at 70% transparency
+      "LNG" = "#003554",  # EC orange at 40% transparency
+      "Propane." = "#93c462",               # EC green
+      "Diesel" = scales::alpha("#EF5A22",0.5)                 # EC dark blue
+    ))+
+  guides(color = guide_legend(override.aes = list(size = 2.5))+
+    theme_minimal() +
+  theme(
+    plot.title = element_markdown(color = "#9e9e9e", size = 25, family = "Calibri", margin = margin(b = 10)),
+    plot.subtitle = element_text(color = "#9e9e9e", size = 15, family = "Calibri"),
+    axis.text = element_text(color = "#9e9e9e", size = 16, family = "Calibri"),
+    axis.title.x = element_text(color = "#9E9E9E", size = 16, family = "Calibri", face = "bold", margin = margin(t = 10)),
+    axis.title.y = element_text(color = "#9E9E9E", size = 16, family = "Calibri", face = "bold", margin = margin(r = 10)),
+    axis.line = element_line(color = "#9e9e9e", size = 1),
+    legend.text = element_text(color = "#9e9e9e", size = 16, family = "Calibri"),
+    legend.title = element_text(color = "#9e9e9e", size = 16, family = "Calibri", face = "bold"),
+    legend.position = "top",
+    legend.margin = margin(0, 0, 0, 0),
+    legend.key.size = unit(30, "mm"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank(),
+    plot.caption = element_markdown(color = "#9e9e9e", size = 15, family = "Calibri", hjust = 0),
+    legend.background = element_blank(),
+    plot.background = element_blank(),
+    panel.background = element_blank()
+  )
+
+ggsave(filename = "retail_fuel_prices.svg", plot = combined_prices_plot, width=12, height=8)
+```
+
