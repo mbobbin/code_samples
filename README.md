@@ -1,1 +1,3 @@
 Oil dependency is a detriment to American economic prosperity. In this set of analysis, I show that oil shocks tend to be associated with recessionary periods. Meanwhile, residential electricity prices have not faced the same volatility other transportation fuel sources have and has historically been cheaper. Ultimately, this provides a strong economic argument for aggressively electrifying the U.S. transportation sector.
+<img width="1209" height="807" alt="Screenshot 2025-03-31 114213" src="https://github.com/user-attachments/assets/f41974a6-036b-4dd9-88df-f0a3262909f9" />
+<img width="1729" height="1137" alt="Screenshot 2026-01-30 135554" src="https://github.com/user-attachments/assets/82a93fda-ca51-498f-83cb-b08cbe55a489" />
